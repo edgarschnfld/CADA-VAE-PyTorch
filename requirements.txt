@@ -1,0 +1,5 @@
+torch==0.4.1
+numpy==1.14.3
+scipy==1.1.0
+scikit_learn==0.20.3
+networkx==1.11
