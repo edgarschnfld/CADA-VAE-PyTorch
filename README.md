@@ -4,7 +4,7 @@ A PyTorch implementation of "Generalized Zero-and Few-Shot Learning via Aligned 
 Paper: https://arxiv.org/pdf/1812.01784.pdf
 
 <p align="center">
-  <img width="800" src="model.jpg">
+  <img width="600" src="model.jpg">
 </p>
 <p align="justify">
   
