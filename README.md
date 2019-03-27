@@ -36,3 +36,16 @@ num_shots: any number
 generalized: True, False
 ```
 More hyperparameters can be adjusted in the file single_experiment.py directly. The results can vary by 1-2% between identical runs.
+
+### Citation
+If you use this work please cite
+```
+@article{schonfeld2018generalized,
+  title={Generalized Zero-and Few-Shot Learning via Aligned Variational Autoencoders},
+  author={Sch{\"o}nfeld, Edgar and Ebrahimi, Sayna and Sinha, Samarth and Darrell, Trevor and Akata, Zeynep},
+  journal={arXiv preprint arXiv:1812.01784},
+  year={2018}
+}
+```
+
+
