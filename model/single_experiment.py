@@ -4,9 +4,7 @@
 from vaemodel import Model
 import numpy as np
 import pickle
-import shutil
 import torch
-import copy
 import os
 import argparse
 
@@ -47,14 +45,13 @@ hyperparameters = {
                               'FLO': (200, 0, 400, 0),
                               'AWA1': (200, 0, 400, 0)},
     'epochs': 100,
-    'validation_mode': False,
     'loss': 'l1',
     'auxiliary_data_source' : 'attributes',
     'lr_cls': 0.001,
     'dataset': 'CUB',
-    'hidden_size_rule': {'resnet_features': (1.560, 1.660),
-                        'attributes': (1.450, 0.665),
-                        'sentences': (1.450, 0.665) },
+    'hidden_size_rule': {'resnet_features': (1560, 1660),
+                        'attributes': (1450, 665),
+                        'sentences': (1450, 665) },
     'latent_size': 64
 }
 

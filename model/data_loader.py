@@ -18,7 +18,7 @@ def map_label(label, classes):
     return mapped_label
 
 class DATA_LOADER(object):
-    def __init__(self, dataset, aux_datasource, validation_mode = False , device='cuda'):
+    def __init__(self, dataset, aux_datasource, device='cuda'):
 
         print("The current working directory is")
         print(os.getcwd())
@@ -36,7 +36,6 @@ class DATA_LOADER(object):
         sys.path.append(data_path)
 
         self.data_path = data_path
-        self.validation = validation_mode
         self.device = device
         self.dataset = dataset
         self.auxiliary_data_source = aux_datasource
@@ -82,10 +81,11 @@ class DATA_LOADER(object):
         matcontent = sio.loadmat(path)
         # numpy array index starts from 0, matlab starts from 1
         trainval_loc = matcontent['trainval_loc'].squeeze() - 1
-        train_loc = matcontent['train_loc'].squeeze() - 1
-        val_unseen_loc = matcontent['val_loc'].squeeze() - 1
+        train_loc = matcontent['train_loc'].squeeze() - 1 #--> train_feature = TRAIN SEEN
+        val_unseen_loc = matcontent['val_loc'].squeeze() - 1 #--> test_unseen_feature = TEST UNSEEN
         test_seen_loc = matcontent['test_seen_loc'].squeeze() - 1
         test_unseen_loc = matcontent['test_unseen_loc'].squeeze() - 1
+
 
         if self.auxiliary_data_source == 'attributes':
             self.aux_data = torch.from_numpy(matcontent['att'].T).float().to(self.device)
@@ -294,4 +294,3 @@ class DATA_LOADER(object):
             self.data['train_seen_unseen_mixed']['wordnet'] = torch.cat((self.data['train_seen']['wordnet'],self.data['train_unseen']['wordnet']),dim=0)
 
 #d = DATA_LOADER()
-

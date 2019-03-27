@@ -23,9 +23,9 @@ class encoder_template(nn.Module):
 
 
         if len(hidden_size_rule)==2:
-            self.layer_sizes = [input_dim, int(np.floor(1000*hidden_size_rule[0])), latent_size]
+            self.layer_sizes = [input_dim, hidden_size_rule[0], latent_size]
         elif len(hidden_size_rule)==3:
-            self.layer_sizes = [input_dim, int(np.floor(1000*hidden_size_rule[0])), int(np.floor(1000*hidden_size_rule[1])), latent_size]
+            self.layer_sizes = [input_dim, hidden_size_rule[0], hidden_size_rule[1] , latent_size]
 
         modules = []
         for i in range(len(self.layer_sizes)-2):
@@ -62,8 +62,7 @@ class decoder_template(nn.Module):
         super(decoder_template,self).__init__()
 
 
-        self.layer_sizes = [input_dim, int(np.floor(1000*hidden_size_rule[-1])), output_dim]
-
+        self.layer_sizes = [input_dim, hidden_size_rule[-1] , output_dim]
 
         self.feature_decoder = nn.Sequential(nn.Linear(input_dim,self.layer_sizes[1]),nn.ReLU(),nn.Linear(self.layer_sizes[1],output_dim))
 
@@ -73,5 +72,3 @@ class decoder_template(nn.Module):
     def forward(self,x):
 
         return self.feature_decoder(x)
-
-

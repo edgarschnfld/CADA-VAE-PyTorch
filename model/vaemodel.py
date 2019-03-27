@@ -1,11 +1,5 @@
 #vaemodel
-import sys
-import os
-import time
-import pickle
 import copy
-from pathlib import Path
-import numpy as np
 import torch
 import torch.backends.cudnn as cudnn
 import torch.nn as nn
@@ -13,18 +7,9 @@ import torch.nn.functional as F
 import torch.optim as optim
 import torch.autograd as autograd
 from torch.utils import data
-import functools
-from torch.autograd import grad as torch_grad
-from torch.autograd import Variable
 from data_loader import DATA_LOADER as dataloader
-
 import final_classifier as  classifier
 import models
-
-PRINTSTUFF = True
-def cprint(stuff):
-    if PRINTSTUFF:
-        print(stuff)
 
 class LINEAR_LOGSOFTMAX(nn.Module):
     def __init__(self, input_dim, nclass):
@@ -46,7 +31,6 @@ class Model(nn.Module):
         self.auxiliary_data_source = hyperparameters['auxiliary_data_source']
         self.all_data_sources  = ['resnet_features',self.auxiliary_data_source]
         self.DATASET = hyperparameters['dataset']
-        self.validation_mode = hyperparameters['validation_mode']
         self.num_shots = hyperparameters['num_shots']
         self.latent_size = hyperparameters['latent_size']
         self.batch_size = hyperparameters['batch_size']
@@ -63,29 +47,17 @@ class Model(nn.Module):
         self.lr_cls = hyperparameters['lr_cls']
         self.cross_reconstruction = hyperparameters['model_specifics']['cross_reconstruction']
         self.cls_train_epochs = hyperparameters['cls_train_steps']
-        self.dataset = dataloader( self.DATASET, copy.deepcopy(self.auxiliary_data_source), validation_mode = self.validation_mode , device= self.device )
+        self.dataset = dataloader( self.DATASET, copy.deepcopy(self.auxiliary_data_source) , device= self.device )
 
         if self.DATASET=='CUB':
-            if self.validation_mode:
-                self.num_classes=150
-                self.num_novel_classes = 50
-            else:
-                self.num_classes=200
-                self.num_novel_classes = 50
+            self.num_classes=200
+            self.num_novel_classes = 50
         elif self.DATASET=='SUN':
-            if self.validation_mode:
-                self.num_classes= 645
-                self.num_novel_classes = 65
-            else:
-                self.num_classes=717
-                self.num_novel_classes = 72
+            self.num_classes=717
+            self.num_novel_classes = 72
         elif self.DATASET=='AWA1' or self.DATASET=='AWA2':
-            if self.validation_mode:
-                self.num_classes=40
-                self.num_novel_classes = 13
-            else:
-                self.num_classes=50
-                self.num_novel_classes = 10
+            self.num_classes=50
+            self.num_novel_classes = 10
 
         feature_dimensions = [2048, self.dataset.aux_data.size(1)]
 
@@ -97,7 +69,7 @@ class Model(nn.Module):
 
             self.encoder[datatype] = models.encoder_template(dim,self.latent_size,self.hidden_size_rule[datatype],self.device)
 
-            cprint(str(datatype) + ' ' + str(dim))
+            print(str(datatype) + ' ' + str(dim))
 
         self.decoder = {}
         for datatype, dim in zip(self.all_data_sources,feature_dimensions):
@@ -231,8 +203,7 @@ class Model(nn.Module):
         self.train()
         self.reparameterize_with_noise = True
 
-        cprint('train for reconstruction')
-        validation_loss = 0
+        print('train for reconstruction')
         for epoch in range(0, self.nepoch ):
             self.current_epoch = epoch
 
@@ -251,12 +222,11 @@ class Model(nn.Module):
 
                 if i%50==0:
 
-                    cprint('epoch ' + str(epoch) + ' | iter ' + str(i) + '\t'+
-                    ' | loss ' +  str(loss)[:5] + ' | validation loss ' +  str(validation_loss)[:5]
-                    )
+                    print('epoch ' + str(epoch) + ' | iter ' + str(i) + '\t'+
+                    ' | loss ' +  str(loss)[:5]   )
 
                 if i%50==0 and i>0:
-                    losses.append((loss,validation_loss))
+                    losses.append(loss)
 
         # turn into evaluation mode:
         for key, value in self.encoder.items():
@@ -326,10 +296,10 @@ class Model(nn.Module):
 
 
         if self.generalized:
-            cprint('mode: gzsl')
+            print('mode: gzsl')
             clf = LINEAR_LOGSOFTMAX(self.latent_size, self.num_classes)
         else:
-            cprint('mode: zsl')
+            print('mode: zsl')
             clf = LINEAR_LOGSOFTMAX(self.latent_size, self.num_novel_classes)
 
 
@@ -454,14 +424,14 @@ class Model(nn.Module):
 
             if self.generalized:
 
-                cprint('[%.1f]     novel=%.4f, seen=%.4f, h=%.4f , loss=%.4f' % (
+                print('[%.1f]     novel=%.4f, seen=%.4f, h=%.4f , loss=%.4f' % (
                 k, cls.acc_novel, cls.acc_seen, cls.H, cls.average_loss))
 
                 history.append([torch.tensor(cls.acc_seen).item(), torch.tensor(cls.acc_novel).item(),
                                 torch.tensor(cls.H).item()])
 
             else:
-                cprint('[%.1f]  acc=%.4f ' % (k, cls.acc))
+                print('[%.1f]  acc=%.4f ' % (k, cls.acc))
                 history.append([0, torch.tensor(cls.acc).item(), 0])
 
         if self.generalized:

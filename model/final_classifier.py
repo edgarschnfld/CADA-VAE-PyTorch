@@ -5,7 +5,6 @@ import torch.optim as optim
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 import copy
-
 from torch.nn import functional as F
 import sys
 from torch.utils.data import Dataset ,DataLoader
