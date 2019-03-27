@@ -25,17 +25,17 @@ Next to the folder "model", there should be a folder "data".
 
 ### Experiments
 
-To run the experiments from the paper, execute the following:
+To run the experiments from the paper, navigate to the model folder and execute the following:
 ```
 python single_experiment.py --dataset CUB --num_shots 0 --generalized True
 ```
-The choices for the parameters are:
+The choices for the input arguments are:
 ```
 datasets: CUB, SUN, AWA1, AWA2
 num_shots: any number 
 generalized: True, False
 ```
-More hyperparameters can be adjusted in the file single_experiment.py directly. The results can vary by 1-2% between identical runs.
+More hyperparameters can be adjusted in the file single_experiment.py directly. The results vary by 1-2% between identical runs.
 
 ### Citation
 If you use this work please cite
