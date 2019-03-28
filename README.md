@@ -1,5 +1,5 @@
 # CADA-VAE
-A PyTorch implementation of "Generalized Zero-and Few-Shot Learning via Aligned Variational Autoencoders" (CVPR 2019).
+PyTorch implementation of "Generalized Zero-and Few-Shot Learning via Aligned Variational Autoencoders" (CVPR 2019).
 
 Paper: https://arxiv.org/pdf/1812.01784.pdf
 
