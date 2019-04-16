@@ -40,7 +40,7 @@ More hyperparameters can be adjusted in the file single_experiment.py directly. 
 ### Citation
 If you use this work please cite
 ```
-@inproceedings{schonfeld2018generalized,
+@inproceedings{schonfeld2019generalized,
   title={Generalized Zero-and Few-Shot Learning via Aligned Variational Autoencoders},
   author={Sch{\"o}nfeld, Edgar and Ebrahimi, Sayna and Sinha, Samarth and Darrell, Trevor and Akata, Zeynep},
   booktitle={CVPR},
