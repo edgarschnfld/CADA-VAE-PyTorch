@@ -1,5 +1,7 @@
 #vaemodel
 import copy
+import pickle
+
 import torch
 import torch.backends.cudnn as cudnn
 import torch.nn as nn
@@ -407,6 +409,21 @@ class Model(nn.Module):
         ############################################################
         ##### initializing the classifier and train one epoch
         ############################################################
+        
+        #save training and test data for the classifier
+        with open("train_features.p", "wb") as h:
+            pickle.dump(train_X,h)
+        with open("train_labels.p", "wb") as h:
+            pickle.dump(train_Y,h)
+        with open("test_seen_features.p", "wb") as h:
+            pickle.dump(test_seen_X,h)
+        with open("test_seen_labels.p", "wb") as h:
+            pickle.dump(test_seen_Y,h)
+        with open("test_novel_features.p", "wb") as h:
+            pickle.dump(test_novel_X,h)
+        with open("test_novel_labels.p", "wb") as h:
+            pickle.dump(test_novel_Y,h)
+        print("saved latent features !!!")
 
         cls = classifier.CLASSIFIER(clf, train_X, train_Y, test_seen_X, test_seen_Y, test_novel_X,
                                     test_novel_Y,
@@ -433,9 +450,18 @@ class Model(nn.Module):
             else:
                 print('[%.1f]  acc=%.4f ' % (k, cls.acc))
                 history.append([0, torch.tensor(cls.acc).item(), 0])
+                
+        
+        torch.save(cls, "trained_classifier.pth.tar")
 
         if self.generalized:
             return torch.tensor(cls.acc_seen).item(), torch.tensor(cls.acc_novel).item(), torch.tensor(
                 cls.H).item(), history
         else:
             return 0, torch.tensor(cls.acc).item(), 0, history
+            
+            
+            
+            
+            
+            
