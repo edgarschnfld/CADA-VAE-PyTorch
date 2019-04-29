@@ -44,7 +44,7 @@ hyperparameters = {
                               'AWA2': (200, 0, 400, 0),
                               'FLO': (200, 0, 400, 0),
                               'AWA1': (200, 0, 400, 0)},
-    'epochs': 1,
+    'epochs': 100,
     'loss': 'l1',
     'auxiliary_data_source' : 'attributes',
     'lr_cls': 0.001,
