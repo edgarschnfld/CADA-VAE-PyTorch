@@ -4,7 +4,7 @@ Original PyTorch implementation of "Generalized Zero-and Few-Shot Learning via A
 Paper: https://arxiv.org/pdf/1812.01784.pdf
 
 <p align="center">
-  <img width="600" src="model.jpg">
+  <img width="600" src="Model.jpg">
 </p>
 <p align="justify">
   
