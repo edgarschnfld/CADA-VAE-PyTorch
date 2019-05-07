@@ -48,5 +48,5 @@ If you use this work please cite
 }
 ```
 ### Contact 
-For questions or help, feel welcome to write an email to edgar.schoenfeld@bosch.com
+For questions or help, feel welcome to write an email to edgarschoenfeld@live.de
 
