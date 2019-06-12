@@ -17,6 +17,7 @@ scipy==1.1.0
 scikit_learn==0.20.3
 networkx==1.11
 ```
+Using Python 2 is not recommended.
 
 ### Data
 Download the following folder https://www.dropbox.com/sh/btoc495ytfbnbat/AAAaurkoKnnk0uV-swgF-gdSa?dl=0
