@@ -42,9 +42,10 @@ More hyperparameters can be adjusted in the file single_experiment.py directly. 
 If you use this work please cite
 ```
 @inproceedings{schonfeld2019generalized,
-  title={Generalized Zero-and Few-Shot Learning via Aligned Variational Autoencoders},
-  author={Sch{\"o}nfeld, Edgar and Ebrahimi, Sayna and Sinha, Samarth and Darrell, Trevor and Akata, Zeynep},
-  booktitle={CVPR},
+  title={Generalized zero-and few-shot learning via aligned variational autoencoders},
+  author={Schonfeld, Edgar and Ebrahimi, Sayna and Sinha, Samarth and Darrell, Trevor and Akata, Zeynep},
+  booktitle={Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition},
+  pages={8247--8255},
   year={2019}
 }
 ```
