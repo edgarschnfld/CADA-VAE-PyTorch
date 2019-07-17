@@ -8,11 +8,19 @@ import torch
 import os
 import argparse
 
+def str2bool(v):
+    if v.lower() in ('yes', 'true', 't', 'y', '1'):
+        return True
+    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
+        return False
+    else:
+        raise argparse.ArgumentTypeError('Boolean value expected.')
+
 parser = argparse.ArgumentParser()
 
 parser.add_argument('--dataset')
 parser.add_argument('--num_shots',type=int)
-parser.add_argument('--generalized',type=bool)
+parser.add_argument('--generalized', type = str2bool)
 args = parser.parse_args()
 
 
