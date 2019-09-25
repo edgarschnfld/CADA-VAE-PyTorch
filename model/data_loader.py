@@ -9,6 +9,7 @@ import os
 from pathlib import Path
 import pickle
 import copy
+import random
 
 def map_label(label, classes):
     mapped_label = torch.LongTensor(label.size())
@@ -17,8 +18,15 @@ def map_label(label, classes):
 
     return mapped_label
 
+def map_labels_to_dense(all_labels):
+    # assumes that each entry in all_labels is unique
+    old_label_to_new_label = {}
+    for i in range(len(all_labels)):
+        old_label_to_new_label[all_labels[i]]=i
+    return old_label_to_new_label
+
 class DATA_LOADER(object):
-    def __init__(self, dataset, aux_datasource, device='cuda'):
+    def __init__(self, dataset, aux_datasource, device='cuda', validation_mode = False):
 
         print("The current working directory is")
         print(os.getcwd())
@@ -39,6 +47,7 @@ class DATA_LOADER(object):
         self.device = device
         self.dataset = dataset
         self.auxiliary_data_source = aux_datasource
+        self.validation_mode = validation_mode
 
         self.all_data_sources = ['resnet_features'] + [self.auxiliary_data_source]
 
@@ -86,6 +95,14 @@ class DATA_LOADER(object):
         test_seen_loc = matcontent['test_seen_loc'].squeeze() - 1
         test_unseen_loc = matcontent['test_unseen_loc'].squeeze() - 1
 
+        # lengths for CUB:
+        # ----------------
+        # trainval_loc:     7057
+        # train_loc:        5875
+        # val_unseen_loc:   2964
+        # test_seen_loc:    1764
+        # test_unseen_loc:  2967
+        # trainval_loc + test_seen_loc = train_loc + val_unseen_loc = 8821
 
         if self.auxiliary_data_source == 'attributes':
             self.aux_data = torch.from_numpy(matcontent['att'].T).float().to(self.device)
@@ -104,7 +121,27 @@ class DATA_LOADER(object):
 
         scaler = preprocessing.MinMaxScaler()
 
-        train_feature = scaler.fit_transform(feature[trainval_loc])
+        if self.validation_mode:
+            if self.dataset=="CUB":
+                # split train loc in two
+                # -----------------------
+                # in the normal setting, 20% of the seen features are used for testing (1764/(1764+7057))
+                # in the validation setting we therefore take aside 20% of the seen features for testing,
+                # which amounts to 5875*0.2 = 1175 features:
+                random.seed( 30 )
+                random.shuffle(train_loc)
+                test_seen_loc = train_loc[:1175]
+                train_seen_loc = train_loc[1175:]
+                # override pointers to unseen test set with the validation split
+                test_unseen_loc = val_unseen_loc
+
+            else:
+                raise NotImplementedError
+        else:
+            train_seen_loc = trainval_loc
+
+
+        train_feature = scaler.fit_transform(feature[train_seen_loc])
         test_seen_feature = scaler.fit_transform(feature[test_seen_loc])
         test_unseen_feature = scaler.fit_transform(feature[test_unseen_loc])
 
@@ -112,7 +149,7 @@ class DATA_LOADER(object):
         test_seen_feature = torch.from_numpy(test_seen_feature).float().to(self.device)
         test_unseen_feature = torch.from_numpy(test_unseen_feature).float().to(self.device)
 
-        train_label = torch.from_numpy(label[trainval_loc]).long().to(self.device)
+        train_label = torch.from_numpy(label[train_seen_loc]).long().to(self.device)
         test_unseen_label = torch.from_numpy(label[test_unseen_loc]).long().to(self.device)
         test_seen_label = torch.from_numpy(label[test_seen_loc]).long().to(self.device)
 
@@ -122,9 +159,41 @@ class DATA_LOADER(object):
         self.ntrain_class = self.seenclasses.size(0)
         self.ntest_class = self.novelclasses.size(0)
         self.train_class = self.seenclasses.clone()
-        self.allclasses = torch.arange(0, self.ntrain_class+self.ntest_class).long()
+        #self.allclasses = torch.arange(0, self.ntrain_class+self.ntest_class).long()
+        self.allclasses = torch.LongTensor(list(set(list(self.seenclasses) + list(self.novelclasses)))).to(self.device)
 
-        self.train_mapped_label = map_label(train_label, self.seenclasses)
+        if self.validation_mode:
+            # labels range from 0 to num_classes - 1
+            # however, not all classes are used, so they need to be mapped
+            # to a smaller set of classes
+            print("BEFORE MAPPING")
+            print("number of classes: ", len(self.allclasses))
+            print("train_label.max().item()  ... ", train_label.max().item() )
+            print("test_unseen_label.max().item()  ... ", test_unseen_label.max().item() )
+            print("test_seen_label.max().item()  ... ", test_seen_label.max().item() )
+            print("self.allclasses.max().item()  ... ", self.allclasses.max().item() )
+            print("self.seenclasses.max().item()  ... ", self.seenclasses.max().item() )
+            print("self.novelclasses.max().item()  ... ", self.novelclasses.max().item() )
+
+            old2new = map_labels_to_dense([ c.item() for c in self.allclasses])
+
+
+            train_label = torch.LongTensor([old2new[c.item()] for c in train_label]).to(self.device)
+            test_unseen_label = torch.LongTensor([old2new[c.item()] for c in test_unseen_label]).to(self.device)
+            test_seen_label = torch.LongTensor([old2new[c.item()] for c in test_seen_label]).to(self.device)
+            self.allclasses = torch.LongTensor([old2new[c.item()] for c in self.allclasses]).to(self.device)
+            self.seenclasses = torch.LongTensor([old2new[c.item()] for c in self.seenclasses]).to(self.device)
+            self.novelclasses = torch.LongTensor([old2new[c.item()] for c in self.novelclasses]).to(self.device)
+
+            print("AFTER MAPPING")
+            print("number of classes: ", len(self.allclasses))
+            print("train_label.max().item()  ... ", train_label.max().item() )
+            print("test_unseen_label.max().item()  ... ", test_unseen_label.max().item() )
+            print("test_seen_label.max().item()  ... ", test_seen_label.max().item() )
+            print("self.allclasses.max().item()  ... ", self.allclasses.max().item() )
+            print("self.seenclasses.max().item()  ... ", self.seenclasses.max().item() )
+            print("self.novelclasses.max().item()  ... ", self.novelclasses.max().item() )
+
 
         self.data = {}
         self.data['train_seen'] = {}
@@ -293,4 +362,5 @@ class DATA_LOADER(object):
         if use_hie:
             self.data['train_seen_unseen_mixed']['wordnet'] = torch.cat((self.data['train_seen']['wordnet'],self.data['train_unseen']['wordnet']),dim=0)
 
-#d = DATA_LOADER()
+#d = DATA_LOADER("CUB","attributes")
+#print(d.data)
