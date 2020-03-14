@@ -105,8 +105,8 @@ class DATA_LOADER(object):
         scaler = preprocessing.MinMaxScaler()
 
         train_feature = scaler.fit_transform(feature[trainval_loc])
-        test_seen_feature = scaler.fit_transform(feature[test_seen_loc])
-        test_unseen_feature = scaler.fit_transform(feature[test_unseen_loc])
+        test_seen_feature = scaler.transform(feature[test_seen_loc])
+        test_unseen_feature = scaler.transform(feature[test_unseen_loc])
 
         train_feature = torch.from_numpy(train_feature).float().to(self.device)
         test_seen_feature = torch.from_numpy(test_seen_feature).float().to(self.device)
